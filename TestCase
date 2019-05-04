@@ -1,4 +1,3 @@
-
 /**
  * test case generator for binary input
  * takes binary input in console
@@ -238,14 +237,14 @@ public class TestCase {
 			return ySol.get(x.length() - 1);
 		}
 	}
-
+	
 	public static void main(String[] args) {
 		Scanner scanner = new Scanner(System.in);
 
-		System.out.println("How many times do you want to run? ");
-		int rounds = scanner.nextInt();
+		System.out.println("type quit to quit, else start ");
 
-		for (int i = 0; i < rounds; i++) {
+		
+		while (!scanner.next().equals("quit")) {
 			System.out.println("Enter binaries");
 			String binaries = scanner.next();
 			System.out.println("Binaries: " + binaries);
@@ -254,6 +253,7 @@ public class TestCase {
 			System.out.println(tc.generator());
 			System.out.println("Last y: " + tc.solution());
 			tc.getAllY();
+			System.out.println("select quit to quit, enter to continue");
 
 		}
 
