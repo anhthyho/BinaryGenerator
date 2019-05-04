@@ -1,0 +1,262 @@
+
+/**
+ * test case generator for binary input
+ * takes binary input in console
+ * creates a string of circuits e.g., Ax#xxNy for x in unary position of binary input, y as result of previous circuits
+ * by ants
+ */
+import java.util.*;
+import java.io.*;
+
+/**
+ * exactly what it sounds like creates test cases
+ * 
+ * @author anhth
+ *
+ */
+public class TestCase {
+	private String binaries;
+	private ArrayList<String> ySol;
+	private ArrayList<String> eq;
+
+	/**
+	 * takes the binaries from scanner
+	 * 
+	 * @param binaries
+	 *            set of binary nums like 101010
+	 */
+	public TestCase(String binaries) {
+		this.binaries = binaries;
+		ySol = new ArrayList<>();
+		eq = new ArrayList<>();
+	}
+
+	/**
+	 * performs AND of a circuit
+	 * 
+	 * @param x
+	 * @param y
+	 * @return string result of AND
+	 */
+	public String AND(String x, String y) {
+		if (x.equals("0") || (y.equals("0"))) {
+			return "0";
+		} else {
+			return "1";
+		}
+
+	}
+
+	/**
+	 * performs OR in circuit logic
+	 * 
+	 * @param x
+	 * @param y
+	 * @return result of OR between 1 and 0
+	 */
+	public String OR(String x, String y) {
+		if (x.equals("1") || (y.equals("1"))) {
+			return "1";
+		} else {
+			return "0";
+		}
+
+	}
+
+	/**
+	 * returns NOT circuit logic
+	 * 
+	 * @param x
+	 * @return opposite of input
+	 */
+	public String NOT(String x) {
+		if (x.equals("0")) {
+			return "1";
+		} else {
+			return "0";
+		}
+
+	}
+
+	/**
+	 * generates the lines of equations A/N/O
+	 * 
+	 * @return the binary + string of equations + prints the equations in order with
+	 *         sol.
+	 */
+	public String generator() {
+		String s = binaries;
+
+		Random r = new Random();
+
+		String[] ops = new String[] { "A", "N", "O" };
+		String[] opWord = new String[] { "AND", "NOT", "OR" };
+
+		int numExp = r.nextInt(11);
+
+		for (int i = 0; i < numExp; i++) {
+			if (i == 0) { // first input can only contain x;
+				int rand = r.nextInt(3);
+				String xVal = "x";
+				String x2Val = "x";
+				int x = r.nextInt(binaries.length());
+
+				for (int j = 1; j < x; j++) {
+					xVal = xVal + "x";
+				}
+
+				int x2 = r.nextInt(binaries.length());
+
+				for (int j = 1; j < x2; j++) {
+					x2Val = x2Val + "x";
+				}
+
+				String op = ops[rand];
+				if (op.equals("N")) {
+					s = s + ops[rand] + xVal;
+					String s1 = letters(xVal);
+					String s2 = letters(x2Val);
+					ySol.add(solve("NOT", s1, ""));
+					eq.add(ops[rand] + xVal);
+					System.out.println(s1 + "");
+				} else {
+					s = s + ops[rand] + xVal + "#" + x2Val;
+					String s1 = letters(xVal);
+					String s2 = letters(x2Val);
+					ySol.add(solve(opWord[rand], s1, s2));
+					eq.add(ops[rand] + xVal + '#' + x2Val);
+					System.out.println(s1 + ", " + s2);
+				}
+
+			} else {
+				int rand = r.nextInt(3);
+				String xVal = "";
+				String x2Val = "";
+				int x = r.nextInt(binaries.length());
+				int y = r.nextInt(ySol.size());
+
+				int x2 = r.nextInt(binaries.length());
+				int y2 = r.nextInt(ySol.size());
+
+				int xy = r.nextInt(2);
+				int xy2 = r.nextInt(2);
+
+				if (xy == 0) { // determine xy for first input
+					xVal = "x";
+					for (int j = 1; j < x; j++) {
+						xVal = xVal + "x";
+					}
+				} else {
+					xVal = "y";
+					for (int j = 1; j < y; j++) {
+						xVal = xVal + "y";
+					}
+				}
+
+				if (xy2 == 0) { // determine xy for second input
+					x2Val = "x";
+					for (int j = 1; j < x2; j++) {
+						x2Val = x2Val + "x";
+					}
+				} else {
+					x2Val = "y";
+					for (int j = 1; j < y2; j++) {
+						x2Val = x2Val + "y";
+					}
+				}
+
+				String op = ops[rand];
+				if (op.equals("N")) {
+					s = s + ops[rand] + xVal;
+					String s1 = letters(xVal);
+					ySol.add(solve("NOT", s1, ""));
+					eq.add(ops[rand] + xVal);
+					System.out.println(s1);
+				} else {
+					s = s + ops[rand] + xVal + "#" + x2Val;
+					String s1 = letters(xVal);
+					String s2 = letters(x2Val);
+					ySol.add(solve(opWord[rand], s1, s2));
+					eq.add(ops[rand] + xVal + '#' + x2Val);
+					System.out.println(s1 + ", " + s2);
+				}
+			}
+
+		}
+		return s;
+	}
+
+	/**
+	 * takes the string and perform op (runs in generator)
+	 * 
+	 * @param op
+	 * @param x
+	 * @param y
+	 * @return the result of the logic
+	 */
+	public String solve(String op, String x, String y) {
+		if (op.equals("NOT")) {
+			return NOT(x);
+		} else if (op.equals("AND")) {
+			return AND(x, y);
+		} else if (op.equals("OR")) {
+			return OR(x, y);
+		}
+		return "can't solve";
+
+	}
+
+	/**
+	 * prints the solutions stored as "y"
+	 * 
+	 * @return the last solution
+	 */
+	public String solution() {
+		return ySol.get(ySol.size() - 1);
+	}
+
+	/**
+	 * prints all y's
+	 */
+	public void getAllY() {
+		for (int i = 0; i < ySol.size(); i++) {
+			System.out.println(i + 1 + ": " + eq.get(i) + " - " + ySol.get(i));
+		}
+	}
+
+	/**
+	 * changes unary x, y input to the corresponding binary 0/1
+	 * 
+	 * @param x
+	 *            string
+	 * @return binary number
+	 */
+	public String letters(String x) {
+		if (x.substring(0, 1).equals("x")) {
+			return binaries.substring(x.length() - 1, x.length());
+		} else {
+			return ySol.get(x.length() - 1);
+		}
+	}
+
+	public static void main(String[] args) {
+		Scanner scanner = new Scanner(System.in);
+
+		System.out.println("How many times do you want to run? ");
+		int rounds = scanner.nextInt();
+
+		for (int i = 0; i < rounds; i++) {
+			System.out.println("Enter binaries");
+			String binaries = scanner.next();
+			System.out.println("Binaries: " + binaries);
+
+			TestCase tc = new TestCase(binaries);
+			System.out.println(tc.generator());
+			System.out.println("Last y: " + tc.solution());
+			tc.getAllY();
+
+		}
+
+	}
+
+}
